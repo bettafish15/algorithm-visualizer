@@ -1,7 +1,8 @@
+import inspect
 import tkinter as tk                # python 3
 from tkinter import font
 from tkinter import ttk
-from sort import sorting
+import algorithm
 
 class mainApp(tk.Tk):
     def __init__(self, *args, **kwargs):
@@ -14,11 +15,18 @@ class mainApp(tk.Tk):
 
         self.tkvar = tk.StringVar(self)
         algoList = ttk.Combobox(self, state="readonly", width = 20, textvariable = self.tkvar)
-        algoList['values'] = ('Sorts')
+        
+        array_temp = []
+
+        for i, element in inspect.getmembers(algorithm):
+          if inspect.isclass(element):
+            array_temp.append(i)
+
+        algoList['values'] = tuple(array_temp)
         algoList.current(0)
         algoList.grid(column = 1, row = 5)
 
-        tk.Button(self, text="Start", command=lambda: sorting(self)).grid(column = 100, row = 5, padx = 5, pady = 5)
+        tk.Button(self, text="Start", command=lambda: getattr(algorithm, self.tkvar.get())(self)).grid(column = 100, row = 5, padx = 5, pady = 5)
         
 if __name__ == "__main__":
     app = mainApp()
