@@ -1,4 +1,67 @@
 import tkinter as tk
+import random
+
+def swap(canvas, bar1, bar2):
+    x1, _, x2, _ = canvas.coords(bar1)
+    x3, _, x4, _ = canvas.coords(bar2)
+    canvas.move(bar1, x4-x2, 0)
+    canvas.move(bar2, x1-x3, 0)
+
+def generate(canvas):
+    canvas.delete("all")
+    barStart = 5
+    barEnd = 15
+    global barList
+    global lengthList
+    lengthList = []
+    barList = []
+    shortest = [0, 345]
+    longest = [0, 0]
+
+    for bar in range(1, 60):
+        randomY = random.randint(10, 340)
+        while randomY in lengthList:
+            randomY = random.randint(10, 340)
+        lengthList.append(randomY)
+        if randomY > longest[1]:
+            longest[0] = bar
+            longest[1] = randomY
+        if randomY < shortest[1]:
+            shortest[0] = bar
+            shortest[1] = randomY
+        bar = canvas.create_rectangle(barStart, randomY, barEnd, 350, fill='yellow')
+        barList.append(bar)
+        barStart+=10
+        barEnd+=10
+
+    canvas.itemconfig(barList[shortest[0]-1], fill="black")
+    canvas.itemconfig(barList[longest[0]-1], fill="red") 
+
+def _bubbleSort(canvas):
+    global barList
+    global lengthList
+    for i in range(len(lengthList)):
+        for j in range(len(lengthList) - i -1):
+            if lengthList[j] < lengthList[j+1]:
+                lengthList[j], lengthList[j+1] = lengthList[j+1], lengthList[j]
+                barList[j], barList[j+1] = barList[j+1], barList[j]
+                swap(canvas, barList[j], barList[j+1])
+                yield
+    
+def bubbleSort(canvas, tk):
+    global worker
+    worker = _bubbleSort(canvas)
+    animate(tk)
+
+def animate(tk):
+    global worker
+    if worker is not None:
+        try:
+            next(worker)
+            tk.after(10, lambda: animate(tk))
+        except StopIteration:            
+            worker = None
+
 
 
 class sorting(tk.Toplevel):
@@ -14,9 +77,11 @@ class sorting(tk.Toplevel):
 
         insert = tk.Button(self, text='Insertion Sort')
         select = tk.Button(self, text='Selection Sort')
-        bubble = tk.Button(self, text='Bubble Sort')
-        shuf = tk.Button(self, text='Shuffle')
+        bubble = tk.Button(self, text='Bubble Sort', command= lambda: bubbleSort(canvas, self))
+        shuf = tk.Button(self, text='Shuffle', command= lambda: generate(canvas))
         insert.grid(column=1,row=1)
         select.grid(column=2,row=1)
         bubble.grid(column=3,row=1)
         shuf.grid(column=0, row=1)
+
+        generate(canvas)
