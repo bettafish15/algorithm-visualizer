@@ -28,7 +28,7 @@ class mainApp(tk.Tk):
             if inspect.isclass(element):
                 array_temp.append(i)
 
-            algoList["values"] = tuple(array_temp)
+        algoList["values"] = tuple(array_temp)
         algoList.current(0)
         algoList.grid(column=1, row=5)
 
